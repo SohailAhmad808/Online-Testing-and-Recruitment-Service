@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attempt Test</title>
+  <link href="../AttachtableFile/bootstrap-5.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+
+  <div class="card mx-auto shadow" style="max-width: 800px;" id="quizCard">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0" id="questionNumber">Question 1 / 5</h5>
+        <span class="badge bg-danger fs-6">
+          <i class="fa-solid fa-clock me-1"></i><span id="timeLeft">30</span>s
+        </span>
+      </div>
+
+      <div class="progress mb-3">
+        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 0%"></div>
+      </div>
+
+      <h5 id="questionText" class="mb-3"></h5>
+      <div id="optionsContainer" class="list-group mb-3"></div>
+
+      <div class="text-end">
+        <button class="btn btn-outline-primary" id="nextBtn">Next Question</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mx-auto shadow text-center d-none" style="max-width: 600px;" id="resultCard">
+    <div class="card-body">
+      <h3 class="mb-3">🎉 Test Completed!</h3>
+      <p class="fs-5">You answered <span id="correctCount">0</span> out of <span id="totalCount">0</span> questions correctly.</p>
+      <a href="UserDashboard.php" class="btn btn-primary mt-3">Back to Dashboard</a>
+    </div>
+  </div>
+
+</div>
+
+<script src="../AttachtableFile/bootstrap-5.3.7-dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ======== Demo Question Data (You will replace with DB data later) ========
+const questions = [
+  {
+    text: "What is the capital of Pakistan?",
+    options: ["Karachi", "Islamabad", "Lahore", "Peshawar"],
+    answer: 1
+  },
+  {
+    text: "Which language runs in a web browser?",
+    options: ["Python", "C++", "JavaScript", "Java"],
+    answer: 2
+  },
+  {
+    text: "What does HTML stand for?",
+    options: ["Hyper Text Markup Language", "Hot Mail", "Hyperlinks and Text Markup Language", "None"],
+    answer: 0
+  },
+  {
+    text: "Which one is a CSS framework?",
+    options: ["React", "Bootstrap", "Django", "Laravel"],
+    answer: 1
+  },
+  {
+    text: "PHP stands for?",
+    options: ["Personal Home Page", "Pretext Hypertext Processor", "Private Hypertext Page", "None of the above"],
+    answer: 0
+  }
+];
+
+const totalQuestions = questions.length;
+let currentIndex = 0;
+let correctAnswers = 0;
+let timePerQuestion = 30;
+let timer;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+const optionsContainer = document.getElementById("optionsContainer");
+const timeLeft = document.getElementById("timeLeft");
+const nextBtn = document.getElementById("nextBtn");
+const progressBar = document.getElementById("progressBar");
+const quizCard = document.getElementById("quizCard");
+const resultCard = document.getElementById("resultCard");
+const correctCount = document.getElementById("correctCount");
+const totalCount = document.getElementById("totalCount");
+
+function loadQuestion() {
+  const q = questions[currentIndex];
+  questionNumber.textContent = `Question ${currentIndex + 1} / ${totalQuestions}`;
+  questionText.textContent = q.text;
+  progressBar.style.width = (currentIndex / totalQuestions) * 100 + "%";
+
+  optionsContainer.innerHTML = "";
+  q.options.forEach((option, index) => {
+    const btn = document.createElement("button");
+    btn.className = "list-group-item list-group-item-action";
+    btn.textContent = option;
+    btn.onclick = () => selectOption(index);
+    optionsContainer.appendChild(btn);
+  });
+
+  resetTimer();
+}
+
+function resetTimer() {
+  clearInterval(timer);
+  let time = timePerQuestion;
+  timeLeft.textContent = time;
+  timer = setInterval(() => {
+    time--;
+    timeLeft.textContent = time;
+    if (time <= 0) {
+      clearInterval(timer);
+      goNextQuestion();
+    }
+  }, 1000);
+}
+
+function selectOption(index) {
+  clearInterval(timer);
+  const q = questions[currentIndex];
+  const buttons = document.querySelectorAll(".list-group-item");
+  buttons.forEach(b => b.classList.remove("active"));
+  buttons[index].classList.add("active");
+
+  if (index === q.answer) {
+    correctAnswers++;
+  }
+}
+
+nextBtn.onclick = goNextQuestion;
+
+function goNextQuestion() {
+  currentIndex++;
+  if (currentIndex < totalQuestions) {
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  quizCard.classList.add("d-none");
+  resultCard.classList.remove("d-none");
+  correctCount.textContent = correctAnswers;
+  totalCount.textContent = totalQuestions;
+  progressBar.style.width = "100%";
+}
+
+// Start quiz
+loadQuestion();
+</script>
+
+</body>
+</html>
